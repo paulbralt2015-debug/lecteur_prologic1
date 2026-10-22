@@ -1,0 +1,56 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Vérifier la syntaxe
+        run: python -m py_compile lecteur_prologic.py
+
+      - name: Télécharger libmpv
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo shinchiro/mpv-winbuild-cmake \
+            --pattern "mpv-dev-x86_64-[0-9]*.7z" --dir mpvdev
+          7z x mpvdev/*.7z -ompvdev/out -y
+          DLL=$(find mpvdev/out -name "libmpv-2.dll" -o -name "mpv-2.dll" | head -n 1)
+          echo "DLL trouvée : $DLL"
+          cp "$DLL" ./libmpv-2.dll
+
+      - name: Construire l'exécutable
+        run: >
+          pyinstaller --onefile --windowed --name LecteurProLogic
+          --add-binary "libmpv-2.dll;." lecteur_prologic.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LecteurProLogic-windows
+          path: dist/LecteurProLogic.exe
+
+      - name: Publier la release (tags v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/LecteurProLogic.exe
