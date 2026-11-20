@@ -1,4 +1,4 @@
-# Lecteur Pro Logic II
+# Surround Sound video player 
 
 Lecteur vidéo pour Windows (Python, PyQt6, libmpv) qui décode le son stéréo
 Dolby Surround (Lt/Rt) vers du 5.1, avec les modes et réglages de type Pro Logic II.
