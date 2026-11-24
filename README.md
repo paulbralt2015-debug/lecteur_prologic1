@@ -6,13 +6,18 @@ Dolby Surround (Lt/Rt) vers du 5.1, avec les modes et réglages de type Pro Logi
 ## Fonctionnalités
 
 - Lecture de tous les formats courants (MKV, MP4, AVI, TS, M2TS, MOV, WMV, WEBM…), décodage matériel
-- Sources multicanal (AC-3, E-AC-3, DTS, AAC 5.1…) lues telles quelles
+- Décodage des pistes AC-3, E-AC-3 (Dolby Digital Plus), DTS et AAC multicanal via FFmpeg/libmpv (selon les codecs inclus dans le build libmpv)
+- Sélection de la piste audio : langue, titre, codec et nombre de canaux
+- Réglage du rapport d'image : automatique, 4:3, 16:9, 16:10, 1.85:1, 2.35:1, 2.39:1, 21:9 et 1:1
+- Downmix des sources multicanales vers stéréo 2.0
+- Sortie 5.1 avec upmix des sources stéréo ou lecture native des sources multicanales
+- Sources multicanales AC-3, E-AC-3, DTS et AAC 5.1 lues avec le décodeur FFmpeg/libmpv
 - Décodage des sources stéréo vers 5.1 via WASAPI :
   - **Pro Logic II Movie** : steering actif, surrounds pleine bande
   - **Pro Logic II Music** : largeur du centre (0–7), dimension (-3/+3), panorama
   - **Dolby Surround Pro Logic** : matrice passive classique, surround limité à 7 kHz
 - Retard des surrounds (0–30 ms), caisson de basses (LFE 120 Hz), limiteur anti-saturation
-- Plein écran, glisser-déposer, raccourcis clavier
+- Bouton de plein écran et raccourci F / Échap, glisser-déposer, raccourcis clavier
 
 ## Installation
 
@@ -46,6 +51,7 @@ Placer `libmpv-2.dll` dans le dossier puis lancer `build.bat`. L'exécutable est
   Il s'agit d'une implémentation ouverte (matrice Lt/Rt + steering du filtre FFmpeg `surround`)
   qui reproduit le principe et les réglages. Dolby® et Pro Logic® sont des marques de Dolby Laboratories.
 - Sur casque ou enceintes stéréo, le 5.1 est re-mixé en stéréo et l'effet surround est en grande partie perdu.
+- Le décodage E-AC-3 et DTS dépend des codecs compilés dans la version de FFmpeg fournie avec libmpv. Le lecteur ne déchiffre pas les contenus protégés/DRM.
 - Le filtre `surround` dépend de la version de libmpv/FFmpeg utilisée.
 
 ## Dépannage
