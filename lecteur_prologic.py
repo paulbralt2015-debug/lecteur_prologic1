@@ -79,6 +79,9 @@ class Lecteur(QMainWindow):
         self.duration = 0.0
         self.src_channels = 0
         self.current_path = ""
+        self.audio_codec = "détection…"
+        self.audio_rate = 0
+        self.audio_layout = ""
 
         self.video = QWidget()
         self.video.setStyleSheet("background:black;")
@@ -177,6 +180,13 @@ class Lecteur(QMainWindow):
             ao="wasapi",
             hwdec="auto-safe",
             keep_open="no",
+            # Décodage logiciel FFmpeg : les flux sont décodés avant traitement.
+            audio_spdif="",
+            audio_resample_filter_size=32,
+            audio_resample_phase_shift=10,
+            audio_resample_cutoff=0.95,
+            audio_resample_linear=False,
+            audio_pitch_correction=True,
         )
         self.player.property_observer("time-pos")(
             lambda n, v: v is not None and self.sig_time.emit(float(v)))
@@ -184,6 +194,8 @@ class Lecteur(QMainWindow):
             lambda n, v: v is not None and self.sig_dur.emit(float(v)))
         self.player.property_observer("audio-params")(
             lambda n, v: self.sig_params.emit(v))
+        self.player.property_observer("audio-codec-name")(
+            lambda n, v: self.set_audio_codec(v))
         self.player.property_observer("track-list")(
             lambda n, v: self.sig_tracks.emit(v or []))
 
@@ -303,11 +315,31 @@ class Lecteur(QMainWindow):
         fmt = lambda x: f"{int(x) // 3600:02d}:{int(x) // 60 % 60:02d}:{int(x) % 60:02d}"
         self.lbl_time.setText(f"{fmt(t)} / {fmt(self.duration)}")
 
+    def set_audio_codec(self, codec):
+        self.audio_codec = str(codec or "inconnu").upper()
+        self.refresh_audio_status()
+
     def on_params(self, params):
-        ch = params.get("channel-count", 0) if isinstance(params, dict) else 0
+        if not isinstance(params, dict):
+            return
+        ch = params.get("channel-count", 0)
+        self.audio_rate = int(params.get("samplerate", 0) or 0)
+        self.audio_layout = str(params.get("channel-layout", "") or "")
         if ch != self.src_channels:
             self.src_channels = ch
             QTimer.singleShot(100, self.apply_filters)
+        else:
+            self.refresh_audio_status()
+
+    def refresh_audio_status(self):
+        if not self.current_path:
+            return
+        channels = self.audio_layout or (
+            f"{self.src_channels} canaux" if self.src_channels else "analyse…")
+        rate = f"{self.audio_rate / 1000:.1f} kHz" if self.audio_rate else "fréquence…"
+        self.lbl_info.setText(
+            f"Décodage : {self.audio_codec} | {channels} | {rate}. "
+            "Traitement logiciel FFmpeg/libmpv actif.")
 
     def settings(self):
         return {
@@ -370,8 +402,10 @@ class Lecteur(QMainWindow):
                     else:
                         self.player.command("af", "clear")
                         info = "Lecture audio native."
+            channels = self.audio_layout or f"{self.src_channels} canaux"
+            rate = f"{self.audio_rate / 1000:.1f} kHz" if self.audio_rate else "fréquence inconnue"
             self.lbl_info.setText(
-                info + " Formats E-AC-3 et DTS décodés par FFmpeg/libmpv selon les codecs du build.")
+                f"{info} | Codec : {self.audio_codec} | {channels} | {rate}")
         except Exception as e:
             self.lbl_info.setText(f"Erreur de configuration audio : {e}")
 
