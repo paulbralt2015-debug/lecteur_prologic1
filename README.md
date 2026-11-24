@@ -17,6 +17,9 @@ Dolby Surround (Lt/Rt) vers du 5.1, avec les modes et réglages de type Pro Logi
   - **Pro Logic II Music** : largeur du centre (0–7), dimension (-3/+3), panorama
   - **Dolby Surround Pro Logic** : matrice passive classique, surround limité à 7 kHz
 - Retard des surrounds (0–30 ms), caisson de basses (LFE 120 Hz), limiteur anti-saturation
+- Rééchantillonnage libmpv en haute qualité (filtre 32 taps, phase 10, correction de pitch)
+- Affichage du codec effectivement décodé, du format de canaux et de la fréquence d'échantillonnage
+- Décodage logiciel avant traitement surround ; aucune sortie bitstream SPDIF n'est demandée
 - Bouton de plein écran et raccourci F / Échap, glisser-déposer, raccourcis clavier
 
 ## Installation
@@ -52,6 +55,7 @@ Placer `libmpv-2.dll` dans le dossier puis lancer `build.bat`. L'exécutable est
   qui reproduit le principe et les réglages. Dolby® et Pro Logic® sont des marques de Dolby Laboratories.
 - Sur casque ou enceintes stéréo, le 5.1 est re-mixé en stéréo et l'effet surround est en grande partie perdu.
 - Le décodage E-AC-3 et DTS dépend des codecs compilés dans la version de FFmpeg fournie avec libmpv. Le lecteur ne déchiffre pas les contenus protégés/DRM.
+- Le réglage de qualité du rééchantillonneur améliore la conversion de fréquence lorsque celle-ci est nécessaire ; il ne peut pas restaurer les informations déjà perdues dans un fichier compressé.
 - Le filtre `surround` dépend de la version de libmpv/FFmpeg utilisée.
 
 ## Dépannage
