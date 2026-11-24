@@ -70,6 +70,7 @@ class Lecteur(QMainWindow):
     sig_dur = pyqtSignal(float)
     sig_params = pyqtSignal(object)
     sig_tracks = pyqtSignal(object)
+    sig_codec = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -195,7 +196,7 @@ class Lecteur(QMainWindow):
         self.player.property_observer("audio-params")(
             lambda n, v: self.sig_params.emit(v))
         self.player.property_observer("audio-codec-name")(
-            lambda n, v: self.set_audio_codec(v))
+            lambda n, v: self.sig_codec.emit(str(v or "inconnu")))
         self.player.property_observer("track-list")(
             lambda n, v: self.sig_tracks.emit(v or []))
 
@@ -203,6 +204,7 @@ class Lecteur(QMainWindow):
         self.sig_dur.connect(lambda d: setattr(self, "duration", d))
         self.sig_params.connect(self.on_params)
         self.sig_tracks.connect(self.populate_audio_tracks)
+        self.sig_codec.connect(self.set_audio_codec)
 
         self.btn_open.clicked.connect(self.open_dialog)
         self.btn_play.clicked.connect(self.toggle_pause)
