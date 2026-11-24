@@ -353,7 +353,10 @@ class Lecteur(QMainWindow):
                     info = "Sortie 5.1 demandée. En attente des informations audio de la source."
             else:
                 self.player.audio_channels = "auto-safe"
-                if self.src_channels > 2:
+                if self.src_channels == 0:
+                    self.player.command("af", "clear")
+                    info = "Analyse de la piste audio en cours…"
+                elif self.src_channels > 2:
                     self.player.command("af", "clear")
                     info = f"Source multicanal ({self.src_channels} canaux) : lecture native."
                 elif self.src_channels == 1:
@@ -376,7 +379,7 @@ class Lecteur(QMainWindow):
         key = event.key()
         if key == Qt.Key.Key_Space:
             self.toggle_pause()
-        elif key in (Qt.Key.Key_F, Qt.Key.Key_Enter, Qt.Key.Key_Return) and key == Qt.Key.Key_F:
+        elif key == Qt.Key.Key_F:
             self.toggle_fullscreen()
         elif key == Qt.Key.Key_Escape and self.isFullScreen():
             self.toggle_fullscreen()
